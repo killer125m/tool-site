@@ -1,0 +1,1489 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>網路工具箱</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800;900&family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<style>
+  :root{
+    --bg:#F4F3EF;
+    --surface:#FFFFFF;
+    --surface-2:#ECEAE3;
+    --ink:#171A19;
+    --muted:#6B7280;
+    --line:#E2E0D8;
+    --accent:#0F766E;
+    --accent-ink:#0B4F4A;
+    --danger:#B3261E;
+    --shadow:0 1px 2px rgba(0,0,0,.05), 0 10px 30px rgba(0,0,0,.05);
+    --radius:20px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#131615;
+      --surface:#1C1F1E;
+      --surface-2:#242827;
+      --ink:#F2F2ED;
+      --muted:#9AA3A0;
+      --line:#2E3331;
+      --accent:#2DD4BF;
+      --accent-ink:#99F6E4;
+      --danger:#F2B8B5;
+      --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 32px rgba(0,0,0,.28);
+    }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Noto Sans TC","Inter",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  button{font:inherit}
+  input,select,textarea{font:inherit}
+
+  .wrap{max-width:1020px;margin:0 auto;padding:28px 20px 40px}
+  @media(max-width:640px){.wrap{padding:20px 16px 32px}}
+
+  /* Header */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:28px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand-mark{
+    width:44px;height:44px;border-radius:12px;background:var(--ink);color:var(--bg);
+    display:grid;place-items:center;flex-shrink:0;
+  }
+  .brand-mark svg{width:22px;height:22px}
+  .brand-text{line-height:1.1}
+  .brand-text strong{font-size:15px;font-weight:800;letter-spacing:.02em;display:block}
+  .brand-text span{font-size:12.5px;color:var(--muted);font-weight:500}
+  .count-badge{
+    font-size:13px;font-weight:700;background:var(--surface);border:1px solid var(--line);
+    padding:8px 12px;border-radius:999px;white-space:nowrap;
+  }
+  .count-badge b{color:var(--accent)}
+
+  .hero{margin:8px 0 22px}
+  .hero h1{font-size:36px;line-height:1.05;font-weight:900;letter-spacing:-.02em;margin:0}
+  .hero h1 em{font-style:normal;color:var(--accent)}
+  .hero p{margin:10px 0 0;color:var(--muted);font-size:15.5px;line-height:1.6;max-width:560px}
+  @media(max-width:640px){.hero h1{font-size:30px}}
+
+  /* Search */
+  .search-row{display:flex;gap:10px;margin:22px 0 14px}
+  .search-box{
+    flex:1;display:flex;align-items:center;gap:10px;background:var(--surface);
+    border:1.5px solid var(--line);border-radius:14px;padding:0 14px;height:52px;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .search-box:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent)}
+  .search-box svg{width:20px;height:20px;color:var(--muted);flex-shrink:0}
+  .search-box input{
+    flex:1;border:0;outline:0;background:transparent;color:var(--ink);
+    font-size:16px;font-family:inherit;min-width:0;height:100%;
+  }
+  .search-box input::placeholder{color:var(--muted)}
+  .search-box kbd{
+    font-family:inherit;font-size:11px;font-weight:700;color:var(--muted);
+    background:var(--surface-2);border:1px solid var(--line);border-bottom-width:2px;
+    padding:3px 7px;border-radius:6px;
+  }
+  @media(max-width:640px){.search-box kbd{display:none}}
+
+  /* Filters */
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+  .chip{
+    height:38px;padding:0 16px;border-radius:999px;border:1px solid var(--line);
+    background:var(--surface);color:var(--muted);font-weight:700;font-size:13.5px;
+    cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  }
+  .chip:hover{color:var(--ink);border-color:var(--muted)}
+  .chip.active{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .chip .n{font-size:11px;opacity:.75;background:rgba(127,127,127,.15);padding:2px 6px;border-radius:999px}
+
+  /* Tool cards */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+  @media(max-width:680px){.grid{grid-template-columns:1fr}}
+
+  .card{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);position:relative;overflow:hidden;
+  }
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+  .card-head{
+    width:100%;display:flex;gap:16px;align-items:flex-start;text-align:left;
+    background:none;border:0;padding:20px;cursor:pointer;color:inherit;
+  }
+  .icon{
+    width:56px;height:56px;border-radius:16px;flex-shrink:0;display:grid;place-items:center;
+    background:color-mix(in srgb, var(--c) 13%, var(--surface));
+    color:var(--c);border:1px solid color-mix(in srgb, var(--c) 18%, transparent);
+  }
+  .icon svg{width:28px;height:28px}
+  .card-info{flex:1;min-width:0}
+  .card-info h2{margin:0;font-size:18px;font-weight:800;line-height:1.2;letter-spacing:-.01em}
+  .card-info p{margin:6px 0 0;color:var(--muted);font-size:14px;line-height:1.55}
+  .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .tag{font-size:11.5px;font-weight:700;letter-spacing:.02em;padding:4px 8px;border-radius:999px;background:var(--surface-2);color:var(--muted)}
+  .chev{
+    flex-shrink:0;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;
+    color:var(--muted);transition:transform .2s;
+  }
+  .chev svg{width:20px;height:20px}
+  .card.open .chev{transform:rotate(180deg)}
+
+  .tool-body{display:none;border-top:1px solid var(--line);padding:18px 20px 20px}
+  .card.open .tool-body{display:block}
+
+  /* Tool controls */
+  .row{display:flex;gap:10px;flex-wrap:wrap}
+  .row > *{flex:1 1 auto}
+  .field{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .field label{font-size:13px;font-weight:700;color:var(--muted)}
+  .input,.select,textarea.input{
+    height:46px;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);
+    color:var(--ink);font-size:15px;padding:0 12px;width:100%;outline:0;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  textarea.input{height:auto;min-height:76px;padding:10px 12px;resize:vertical}
+  .input:focus,.select:focus,textarea.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent)}
+  .input::placeholder{color:var(--muted)}
+  .btn{
+    height:46px;padding:0 18px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);
+    font-size:14.5px;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;
+    flex:0 0 auto;white-space:nowrap;
+  }
+  .btn svg{width:16px;height:16px}
+  .btn:active{transform:scale(.97)}
+  .btn:disabled{opacity:.45;cursor:default;transform:none}
+  .btn-ghost{
+    height:46px;padding:0 16px;border-radius:12px;border:1px solid var(--line);background:var(--surface);
+    font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:7px;color:var(--ink);
+    flex:0 0 auto;white-space:nowrap;
+  }
+  .btn-ghost svg{width:16px;height:16px}
+  .btn-ghost:active{transform:scale(.97)}
+  .btn-ghost:disabled{opacity:.45;cursor:default;transform:none}
+
+  .seg{display:flex;gap:6px;flex-wrap:wrap}
+  .seg button{
+    height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);
+    color:var(--muted);font-weight:700;font-size:13.5px;cursor:pointer;
+  }
+  .seg button.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  @media (prefers-color-scheme: dark){.seg button.active{color:#0B2422}}
+
+  .note{font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:12px}
+  .note:first-child{margin-top:0}
+  .status-line{font-size:13px;color:var(--muted);margin-top:12px;min-height:18px;line-height:1.55}
+  .status-line.err{color:var(--danger)}
+  .status-line.ok{color:var(--accent-ink)}
+  .divider{border:0;border-top:1px solid var(--line);margin:18px 0}
+  .subhead{font-size:14px;font-weight:800;margin:0 0 10px}
+
+  /* Key-value results */
+  .kv{display:grid;grid-template-columns:110px 1fr;gap:8px 14px;margin-top:14px;font-size:14px}
+  .kv dt{color:var(--muted);font-weight:500}
+  .kv dd{margin:0;font-weight:600;word-break:break-word;min-width:0}
+  @media(max-width:420px){.kv{grid-template-columns:92px 1fr}}
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:13px;word-break:break-all}
+
+  /* Record tables (stack on mobile) */
+  .recs{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+  .rec{
+    background:var(--surface-2);border-radius:12px;padding:10px 12px;font-size:13.5px;line-height:1.55;
+    display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;
+  }
+  .rec b{font-weight:800}
+  .rec .ttl{color:var(--muted);font-size:12px;font-weight:700}
+  .rec .data{flex:1 1 100%;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;word-break:break-all}
+
+  /* Speed test */
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  .stat{background:var(--surface-2);border-radius:14px;padding:14px}
+  .stat span{display:block;font-size:12.5px;font-weight:700;color:var(--muted)}
+  .stat strong{display:block;font-size:26px;font-weight:900;letter-spacing:-.01em;margin-top:4px;line-height:1.1}
+  .stat strong small{font-size:13px;font-weight:700;color:var(--muted);margin-left:2px}
+  .progress{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden;margin:14px 0 6px}
+  .progress i{display:block;height:100%;width:0;background:var(--accent);border-radius:999px;transition:width .25s}
+
+  /* Checkboxes (inside labels, padded targets) */
+  .checks{display:flex;flex-wrap:wrap;gap:8px}
+  .check{
+    display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--line);
+    border-radius:999px;cursor:pointer;font-size:14px;font-weight:600;min-height:40px;background:var(--surface);
+  }
+  .check input{width:17px;height:17px;accent-color:var(--accent);margin:0}
+  .check:has(input:checked){border-color:var(--accent);color:var(--accent-ink)}
+
+  input[type="range"]{width:100%;accent-color:var(--accent);height:36px}
+
+  .pw-out{
+    display:flex;align-items:center;gap:10px;background:var(--surface-2);border-radius:12px;
+    padding:12px 14px;margin-bottom:14px;
+  }
+  .pw-out code{flex:1;font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:16px;word-break:break-all;font-weight:600}
+  .pw-out button{
+    width:40px;height:40px;flex-shrink:0;border-radius:10px;border:1px solid var(--line);background:var(--surface);
+    display:grid;place-items:center;cursor:pointer;color:var(--ink);
+  }
+  .pw-out button svg{width:17px;height:17px}
+  .meter{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+  .meter i{display:block;height:100%;width:0;border-radius:999px;transition:width .25s, background .25s}
+
+  /* QR */
+  .qr-stage{
+    display:flex;flex-direction:column;align-items:center;gap:12px;margin-top:14px;
+  }
+  .qr-box{
+    background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;line-height:0;
+  }
+  .qr-box canvas{width:216px;height:216px}
+  .qr-placeholder{
+    width:216px;height:216px;display:grid;place-items:center;color:#6B7280;
+    font-size:13.5px;line-height:1.6;text-align:center;padding:16px;
+  }
+  video.scan-video{width:100%;border-radius:14px;background:#000;aspect-ratio:4/3;object-fit:cover}
+  .scan-result{
+    margin-top:12px;background:var(--surface-2);border-radius:12px;padding:12px 14px;
+    font-size:14px;line-height:1.6;word-break:break-all;display:none;
+  }
+  .scan-result.show{display:block}
+
+  /* World clock */
+  .clocks{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:420px){.clocks{grid-template-columns:1fr 1fr}}
+  .clock-tile{background:var(--surface-2);border-radius:14px;padding:12px 14px}
+  .clock-tile span{display:block;font-size:12.5px;font-weight:700;color:var(--muted)}
+  .clock-tile strong{display:block;font-size:21px;font-weight:900;margin-top:2px;font-variant-numeric:tabular-nums;letter-spacing:.01em}
+  .clock-tile small{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+  .conv-list{margin-top:12px;display:flex;flex-direction:column}
+  .conv-row{display:flex;justify-content:space-between;gap:12px;padding:9px 2px;border-top:1px solid var(--line);font-size:14px}
+  .conv-row:first-child{border-top:0}
+  .conv-row b{font-weight:700}
+  .conv-row span{font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
+
+  /* Weather */
+  .wx-main{display:flex;align-items:flex-start;gap:16px;margin-top:6px}
+  .wx-temp{font-size:52px;font-weight:900;line-height:1;letter-spacing:-.02em}
+  .wx-desc{font-size:16px;font-weight:800;margin-top:2px}
+  .wx-city{font-size:13px;color:var(--muted);font-weight:600}
+  .aqi-chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:800;padding:5px 10px;border-radius:999px;color:#fff}
+  .wx-days{margin-top:14px;display:flex;flex-direction:column}
+  .wx-day{display:flex;align-items:center;gap:10px;padding:9px 2px;border-top:1px solid var(--line);font-size:14px}
+  .wx-day:first-child{border-top:0}
+  .wx-day b{flex:0 0 74px;font-weight:700}
+  .wx-day .d-desc{flex:1;color:var(--muted);font-size:13px;min-width:0}
+  .wx-day .d-rain{flex:0 0 auto;color:var(--muted);font-size:12.5px;font-weight:700}
+  .wx-day .d-temp{flex:0 0 auto;font-weight:800;font-variant-numeric:tabular-nums}
+  .pick-list{margin-top:8px;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .pick-list button{
+    text-align:left;background:var(--surface);border:0;border-top:1px solid var(--line);
+    padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;color:var(--ink);min-height:44px;
+  }
+  .pick-list button:first-child{border-top:0}
+  .pick-list button small{display:block;color:var(--muted);font-weight:500;font-size:12.5px;margin-top:1px}
+
+  .empty{
+    display:none;text-align:center;padding:44px 20px;background:var(--surface);
+    border:1px dashed var(--line);border-radius:var(--radius);
+  }
+  .empty.show{display:block}
+  .empty strong{display:block;font-size:16px;margin-bottom:6px}
+  .empty p{margin:0;color:var(--muted);font-size:14px}
+  .empty button{margin-top:14px;height:40px;padding:0 16px;border-radius:10px;border:1px solid var(--line);background:var(--bg);font-weight:700;cursor:pointer}
+
+  .foot-note{
+    margin-top:22px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    color:var(--muted);font-size:12.5px;line-height:1.6;
+  }
+  .foot-note kbd{font-family:inherit;background:var(--surface);border:1px solid var(--line);border-bottom-width:2px;padding:1px 6px;border-radius:5px;font-size:11px}
+
+  .toast{
+    position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(16px);
+    background:var(--ink);color:var(--bg);font-size:13.5px;font-weight:700;
+    padding:11px 18px;border-radius:999px;opacity:0;pointer-events:none;transition:.22s;z-index:20;
+    box-shadow:0 10px 30px rgba(0,0,0,.22);white-space:nowrap;max-width:calc(100vw - 32px);
+    overflow:hidden;text-overflow:ellipsis;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  @media (prefers-reduced-motion: reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4.5 4.5 0 0 0-6 6L3 18l3 3 5.7-5.7a4.5 4.5 0 0 0 6-6L14 13l-3-3 3.7-3.7z"/></svg>
+      </div>
+      <div class="brand-text">
+        <strong>網路工具箱</strong>
+        <span>NETWORK TOOLKIT</span>
+      </div>
+    </div>
+    <div class="count-badge">共 <b>11</b> 個工具</div>
+  </header>
+
+  <section class="hero">
+    <h1>今天要查什麼？<em>一頁就搞定。</em></h1>
+    <p>沒有廣告、沒有註冊。常用的網路工具都放在同一個地方，點開工具卡片就能用。</p>
+  </section>
+
+  <div class="search-row">
+    <label class="search-box" for="searchInput">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input id="searchInput" type="search" placeholder="搜尋工具名稱或功能…" autocomplete="off" />
+      <kbd>/</kbd>
+    </label>
+  </div>
+
+  <nav class="filters" id="filters" aria-label="分類篩選"></nav>
+
+  <main>
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="emptyState">
+      <strong>找不到符合的工具</strong>
+      <p>換個關鍵字試試，或清除篩選看全部。</p>
+      <button id="clearBtn" type="button">顯示全部工具</button>
+    </div>
+  </main>
+
+  <div class="foot-note">
+    <span>提示：按 <kbd>/</kbd> 快速搜尋；點工具卡片標題即可展開使用。</span>
+    <span id="resultHint"></span>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">已複製</div>
+
+<script>
+"use strict";
+/* ============ helpers ============ */
+function $(s, r){ return (r || document).querySelector(s); }
+function ce(tag, cls, html){ var e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function pad2(n){ return String(n).padStart(2, "0"); }
+var toastEl = $("#toast"), toastTimer = null;
+function showToast(msg){
+  toastEl.textContent = msg;
+  toastEl.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ toastEl.classList.remove("show"); }, 2000);
+}
+function copyText(text, msg){
+  function done(){ showToast(msg || "已複製"); }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done).catch(function(){ fallback(); });
+  } else fallback();
+  function fallback(){
+    var ta = ce("textarea"); ta.value = text;
+    ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); done(); } catch(e){ showToast(text); }
+    document.body.removeChild(ta);
+  }
+}
+function fetchJSON(url, timeoutMs){
+  var ctrl = new AbortController();
+  var t = setTimeout(function(){ ctrl.abort(); }, timeoutMs || 15000);
+  return fetch(url, { signal: ctrl.signal, headers: { "Accept": "application/json" } })
+    .then(function(r){
+      clearTimeout(t);
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return r.json();
+    })
+    .catch(function(e){ clearTimeout(t); throw e; });
+}
+function setStatus(el, text, kind){
+  el.textContent = text || "";
+  el.className = "status-line" + (kind ? " " + kind : "");
+}
+
+/* ============ tool registry ============ */
+var ICONS = {
+  fx: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2.5l3.5 3.5L17 9.5"/><path d="M3.5 12V10a3.5 3.5 0 0 1 3.5-3.5h13.5"/><path d="M7 21.5L3.5 18 7 14.5"/><path d="M20.5 12v2a3.5 3.5 0 0 1-3.5 3.5H3.5"/></svg>',
+  ip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19"/><path d="M12 2.5c2.8 2.6 4.2 5.9 4.2 9.5s-1.4 6.9-4.2 9.5c-2.8-2.6-4.2-5.9-4.2-9.5S9.2 5.1 12 2.5z"/></svg>',
+  speed: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14.5l4.2-5.7"/><path d="M4.6 19.5a9.5 9.5 0 1 1 14.8 0"/><circle cx="12" cy="14.5" r="1.4" fill="currentColor" stroke="none"/></svg>',
+  dns: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3" width="19" height="7" rx="2"/><rect x="2.5" y="14" width="19" height="7" rx="2"/><path d="M6.5 6.5h.01M6.5 17.5h.01"/></svg>',
+  domain: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10.5" width="16" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/><circle cx="12" cy="15.5" r="1.6"/></svg>',
+  device: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="13" height="11" rx="2"/><path d="M2 20h12"/><rect x="17.5" y="9" width="4" height="11" rx="1.6"/><path d="M19.5 17.5h.01"/></svg>',
+  qrgen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3.5v3.5H14z"/><path d="M21 14v.01M14 21v.01M18.5 18.5H21V21h-2.5z"/></svg>',
+  qrscan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M3 12h18"/></svg>',
+  key: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15.5" r="4.5"/><path d="M11.2 12.3L20 3.5"/><path d="M16.5 7l3 3"/><path d="M13.8 9.7l2.4 2.4"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.2 2"/></svg>',
+  weather: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 18.5a4.2 4.2 0 0 0 .8-8.3 6 6 0 0 0-11.5 1.2A3.8 3.8 0 0 0 7 18.5h10z"/><path d="M12 3.5v.9M18.6 5.4l-.6.6M21 10.5h-.9"/></svg>'
+};
+var CHEV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.5l6 6 6-6"/></svg>';
+
+var GROUPS = [
+  { key: "all", label: "全部" },
+  { key: "core", label: "常用工具" },
+  { key: "network", label: "網路診斷" },
+  { key: "privacy", label: "隱私與分享" },
+  { key: "daily", label: "日常資訊" }
+];
+var GROUP_LABEL = { core: "常用工具", network: "網路診斷", privacy: "隱私與分享", daily: "日常資訊" };
+
+var TOOLS = [
+  { id: "fx",     num: "01", name: "匯率換算",       desc: "即時參考匯率，快速試算",                 group: "core",    color: "#0F766E", icon: "fx",      tags: ["匯率", "換算", "外幣"] },
+  { id: "ip",     num: "02", name: "IP 查詢",        desc: "查看公開 IP 與網路位置，附 MAC 廠商查詢", group: "core",    color: "#0E7490", icon: "ip",      tags: ["IP", "位置", "MAC"] },
+  { id: "speed",  num: "03", name: "網速測試",       desc: "測量目前連線的速度與延遲",               group: "core",    color: "#C2410C", icon: "speed",   tags: ["網速", "下載", "上傳", "Ping"] },
+  { id: "dns",    num: "04", name: "DNS 查詢",       desc: "檢查網域解析與 DNSSEC",                  group: "network", color: "#15803D", icon: "dns",     tags: ["DNS", "網域", "解析"] },
+  { id: "domain", num: "05", name: "網域與 SSL",     desc: "查註冊狀態、DNSSEC 與憑證紀錄",           group: "network", color: "#B45309", icon: "domain",  tags: ["網域", "SSL", "憑證", "到期"] },
+  { id: "device", num: "06", name: "瀏覽器與裝置",   desc: "查看這台裝置公開給網站的資訊",             group: "network", color: "#0369A1", icon: "device",  tags: ["瀏覽器", "裝置", "螢幕"] },
+  { id: "qrgen",  num: "07", name: "QR Code 產生器", desc: "建立 Wi-Fi、網址或文字 QR Code",           group: "privacy", color: "#BE185D", icon: "qrgen",   tags: ["QR Code", "Wi-Fi", "產生"] },
+  { id: "qrscan", num: "08", name: "QR Code 掃描",   desc: "從相機或圖片讀取 QR Code",               group: "privacy", color: "#7C3AED", icon: "qrscan",  tags: ["QR Code", "掃描", "相機"] },
+  { id: "pw",     num: "09", name: "強密碼產生器",   desc: "使用安全亂數在本機建立密碼",               group: "privacy", color: "#A16207", icon: "key",     tags: ["密碼", "產生器", "安全"] },
+  { id: "clock",  num: "10", name: "世界時鐘",       desc: "比較城市時間並換算時區",                   group: "daily",   color: "#0F766E", icon: "clock",   tags: ["時間", "時區", "世界"] },
+  { id: "wx",     num: "11", name: "天氣與空氣品質", desc: "即時天氣、降雨、紫外線與 AQI",             group: "daily",   color: "#0284C7", icon: "weather", tags: ["天氣", "AQI", "空氣品質", "降雨"] }
+];
+
+/* ============ card rendering / accordion / filter ============ */
+var grid = $("#grid"), filtersEl = $("#filters"), searchInput = $("#searchInput"),
+    emptyState = $("#emptyState"), resultHint = $("#resultHint");
+var state = { q: "", cat: "all" };
+var inited = {};
+var cardEls = {};
+
+TOOLS.forEach(function(t){
+  var card = ce("article", "card");
+  card.style.setProperty("--c", t.color);
+  card.dataset.id = t.id;
+  var tagsHtml = '<span class="tag">' + GROUP_LABEL[t.group] + "</span>" +
+    t.tags.map(function(x){ return '<span class="tag">' + esc(x) + "</span>"; }).join("");
+  card.innerHTML =
+    '<button type="button" class="card-head" aria-expanded="false">' +
+      '<span class="icon" aria-hidden="true">' + ICONS[t.icon] + "</span>" +
+      '<span class="card-info"><h2>' + t.num + " " + esc(t.name) + "</h2><p>" + esc(t.desc) + '</p><span class="tags" style="display:flex">' + tagsHtml + "</span></span>" +
+      '<span class="chev" aria-hidden="true">' + CHEV + "</span>" +
+    "</button>" +
+    '<div class="tool-body"></div>';
+  grid.appendChild(card);
+  cardEls[t.id] = card;
+  card.querySelector(".card-head").addEventListener("click", function(){ toggleCard(t.id); });
+});
+
+function toggleCard(id){
+  var card = cardEls[id];
+  var willOpen = !card.classList.contains("open");
+  TOOLS.forEach(function(t){
+    var c = cardEls[t.id], open = (t.id === id) && willOpen;
+    c.classList.toggle("open", open);
+    c.querySelector(".card-head").setAttribute("aria-expanded", open ? "true" : "false");
+    if (!open && t.id === "qrscan" && window.__stopScan) window.__stopScan();
+  });
+  if (willOpen && !inited[id]) {
+    inited[id] = true;
+    if (INIT[id]) INIT[id](card.querySelector(".tool-body"));
+  } else if (willOpen && ONOPEN[id]) {
+    ONOPEN[id](card.querySelector(".tool-body"));
+  }
+  if (willOpen) {
+    setTimeout(function(){
+      var y = card.getBoundingClientRect().top + window.scrollY - 12;
+      window.scrollTo({ top: y, behavior: "smooth" });
+    }, 30);
+  }
+}
+
+function renderFilters(){
+  filtersEl.innerHTML = "";
+  GROUPS.forEach(function(g){
+    var n = g.key === "all" ? TOOLS.length : TOOLS.filter(function(t){ return t.group === g.key; }).length;
+    var b = ce("button", "chip" + (state.cat === g.key ? " active" : ""));
+    b.type = "button";
+    b.innerHTML = g.label + ' <span class="n">' + n + "</span>";
+    b.setAttribute("aria-pressed", state.cat === g.key ? "true" : "false");
+    b.addEventListener("click", function(){ state.cat = g.key; applyFilter(); });
+    filtersEl.appendChild(b);
+  });
+}
+function applyFilter(){
+  renderFilters();
+  var q = state.q.trim().toLowerCase(), shown = 0;
+  TOOLS.forEach(function(t){
+    var ok = state.cat === "all" || t.group === state.cat;
+    if (ok && q) {
+      var hay = (t.name + " " + t.desc + " " + GROUP_LABEL[t.group] + " " + t.tags.join(" ")).toLowerCase();
+      ok = hay.indexOf(q) !== -1;
+    }
+    cardEls[t.id].style.display = ok ? "" : "none";
+    if (ok) shown++;
+  });
+  emptyState.classList.toggle("show", shown === 0);
+  grid.style.display = shown === 0 ? "none" : "";
+  resultHint.textContent = shown === TOOLS.length ? "" : ("目前顯示 " + shown + " / " + TOOLS.length + " 個");
+}
+searchInput.addEventListener("input", function(){ state.q = searchInput.value; applyFilter(); });
+$("#clearBtn").addEventListener("click", function(){
+  state.q = ""; state.cat = "all"; searchInput.value = ""; applyFilter(); searchInput.focus();
+});
+document.addEventListener("keydown", function(e){
+  var tag = (document.activeElement && document.activeElement.tagName) || "";
+  if (e.key === "/" && tag !== "INPUT" && tag !== "TEXTAREA" && tag !== "SELECT") {
+    e.preventDefault(); searchInput.focus();
+  }
+});
+var INIT = {}, ONOPEN = {};
+</script>
+
+<script>
+"use strict";
+/* ============ 01 匯率換算 (Frankfurter) ============ */
+INIT.fx = function(body){
+  var CURR = [
+    ["TWD","新台幣"],["USD","美元"],["EUR","歐元"],["JPY","日圓"],["CNY","人民幣"],
+    ["HKD","港幣"],["KRW","韓元"],["GBP","英鎊"],["AUD","澳幣"],["SGD","新加坡幣"],
+    ["CAD","加幣"],["CHF","瑞士法郎"],["NZD","紐幣"],["THB","泰銖"],["VND","越南盾"]
+  ];
+  function opts(sel){
+    return CURR.map(function(c){
+      return '<option value="' + c[0] + '"' + (c[0] === sel ? " selected" : "") + ">" + c[0] + " " + c[1] + "</option>";
+    }).join("");
+  }
+  body.innerHTML =
+    '<div class="row">' +
+      '<div class="field" style="flex:1 1 120px"><label for="fxAmt">金額</label><input class="input" id="fxAmt" type="number" inputmode="decimal" min="0" step="any" value="1000"></div>' +
+    "</div>" +
+    '<div class="row" style="margin-top:10px;align-items:flex-end">' +
+      '<div class="field" style="flex:1 1 130px"><label for="fxFrom">從</label><select class="select" id="fxFrom">' + opts("TWD") + "</select></div>" +
+      '<button type="button" class="btn-ghost" id="fxSwap" aria-label="交換幣別" style="flex:0 0 auto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3L4 7l4 4"/><path d="M4 7h16"/><path d="M16 21l4-4-4-4"/><path d="M20 17H4"/></svg></button>' +
+      '<div class="field" style="flex:1 1 130px"><label for="fxTo">換成</label><select class="select" id="fxTo">' + opts("USD") + "</select></div>" +
+    "</div>" +
+    '<dl class="kv"><dt>換算結果</dt><dd id="fxResult" style="font-size:19px;font-weight:900">—</dd>' +
+    '<dt>參考匯率</dt><dd id="fxRate">—</dd><dt>匯率日期</dt><dd id="fxDate">—</dd></dl>' +
+    '<div class="status-line" id="fxStatus">等待匯率資料…</div>' +
+    '<p class="note">資料來源：Frankfurter（歐洲央行參考匯率），為銀行間參考價，實際換匯以各銀行牌告為準。</p>';
+
+  var amt = $("#fxAmt", body), from = $("#fxFrom", body), to = $("#fxTo", body),
+      result = $("#fxResult", body), rateEl = $("#fxRate", body), dateEl = $("#fxDate", body),
+      status = $("#fxStatus", body), seq = 0;
+  function convert(){
+    var a = parseFloat(amt.value), f = from.value, t = to.value;
+    if (isNaN(a) || a < 0) { result.textContent = "—"; return; }
+    if (f === t) {
+      result.textContent = a.toLocaleString("zh-Hant", { maximumFractionDigits: 4 }) + " " + t;
+      rateEl.textContent = "1 " + f + " = 1 " + t; dateEl.textContent = "—";
+      setStatus(status, "");
+      return;
+    }
+    var my = ++seq;
+    setStatus(status, "查詢匯率中…");
+    fetchJSON("https://api.frankfurter.dev/v2/rate/" + f + "/" + t)
+      .then(function(j){
+        if (my !== seq) return;
+        var rate = (typeof j.rate === "number") ? j.rate : (j.rates ? j.rates[t] : null);
+        if (rate == null) throw new Error("no rate");
+        var out = a * rate;
+        result.textContent = out.toLocaleString("zh-Hant", { maximumFractionDigits: out >= 1000 ? 2 : 4 }) + " " + t;
+        rateEl.textContent = "1 " + f + " = " + rate.toLocaleString("zh-Hant", { maximumFractionDigits: 6 }) + " " + t;
+        dateEl.textContent = j.date || "—";
+        setStatus(status, "");
+      })
+      .catch(function(){
+        if (my !== seq) return;
+        result.textContent = "—";
+        setStatus(status, "匯率資料暫時無法取得，請稍後再試。", "err");
+      });
+  }
+  [amt, from, to].forEach(function(el){
+    el.addEventListener("input", convert);
+    el.addEventListener("change", convert);
+  });
+  $("#fxSwap", body).addEventListener("click", function(){
+    var v = from.value; from.value = to.value; to.value = v; convert();
+  });
+  convert();
+};
+
+/* ============ 02 IP 查詢 + MAC 廠商查詢 ============ */
+INIT.ip = function(body){
+  body.innerHTML =
+    '<div class="row"><button type="button" class="btn" id="ipBtn">查詢我的 IP</button></div>' +
+    '<dl class="kv" id="ipKv" style="display:none"></dl>' +
+    '<div class="status-line" id="ipStatus">正在定位網路節點…</div>' +
+    '<p class="note">✓ 僅顯示公開網路資料，不會儲存查詢紀錄。</p>' +
+    '<hr class="divider">' +
+    '<h3 class="subhead">MAC 廠商查詢</h3>' +
+    '<div class="row">' +
+      '<div class="field" style="flex:1 1 180px"><label for="macInput">MAC 位址</label><input class="input mono" id="macInput" type="text" placeholder="例如 00:50:56:C0:00:01" autocomplete="off" spellcheck="false"></div>' +
+      '<button type="button" class="btn" id="macBtn" style="align-self:flex-end">查詢廠商</button>' +
+    "</div>" +
+    '<dl class="kv" id="macKv" style="display:none"></dl>' +
+    '<div class="status-line" id="macStatus"></div>' +
+    '<p class="note">基於瀏覽器隱私限制，網站無法透過 IP 自動取得裝置 MAC，需手動貼上。廠商資料來自 Wireshark OUI 資料庫，首次查詢需下載約 3 MB 資料。</p>';
+
+  var kv = $("#ipKv", body), status = $("#ipStatus", body);
+  function load(){
+    kv.style.display = "none";
+    setStatus(status, "正在定位網路節點…");
+    fetchJSON("https://ipwho.is/")
+      .then(function(j){
+        if (!j || j.success === false || !j.ip) throw new Error("bad");
+        var c = j.connection || {}, tz = j.timezone || {};
+        var rows = [
+          ["IP 位址", j.ip + (j.type ? "（" + j.type + "）" : "")],
+          ["國家 / 地區", [j.country, j.region, j.city].filter(Boolean).join(" · ")],
+          ["經緯度", (j.latitude != null && j.longitude != null) ? j.latitude.toFixed(4) + ", " + j.longitude.toFixed(4) : "—"],
+          ["網路供應商", c.isp || c.org || "—"],
+          ["組織", c.org || "—"],
+          ["ASN", c.asn ? "AS" + c.asn : "—"],
+          ["時區", tz.id ? tz.id + (tz.utc ? "（" + tz.utc + "）" : "") : "—"]
+        ];
+        kv.innerHTML = rows.map(function(r){ return "<dt>" + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd>"; }).join("");
+        kv.style.display = "";
+        setStatus(status, "查詢完成。", "ok");
+      })
+      .catch(function(){ setStatus(status, "IP 資料暫時無法取得，請稍後再試。", "err"); });
+  }
+  $("#ipBtn", body).addEventListener("click", load);
+  load();
+
+  /* --- MAC: lazy-load Wireshark OUI database --- */
+  var ouiMap = null, ouiLoading = null;
+  function loadOui(){
+    if (ouiMap) return Promise.resolve(ouiMap);
+    if (ouiLoading) return ouiLoading;
+    ouiLoading = fetch("https://www.wireshark.org/download/automated/data/manuf")
+      .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
+      .then(function(text){
+        var map = {};
+        text.split("\n").forEach(function(line){
+          if (!line || line.charAt(0) === "#") return;
+          var parts = line.split("\t");
+          if (parts.length < 2) return;
+          var prefix = parts[0].split("/")[0].replace(/[^0-9A-Fa-f]/g, "").toUpperCase();
+          var vendor = (parts[2] || parts[1] || "").trim();
+          if (prefix.length >= 6 && vendor) map[prefix] = vendor;
+        });
+        ouiMap = map;
+        return map;
+      });
+    return ouiLoading;
+  }
+  var macKv = $("#macKv", body), macStatus = $("#macStatus", body);
+  function lookupMac(){
+    var raw = $("#macInput", body).value.trim();
+    var hex = raw.replace(/[^0-9A-Fa-f]/g, "").toUpperCase();
+    macKv.style.display = "none";
+    if (hex.length < 6) { setStatus(macStatus, "請先輸入至少前 3 組（6 個十六進位字元）的 MAC 位址。", "err"); return; }
+    if (!/^[0-9A-F]{6,12}$/.test(hex)) { setStatus(macStatus, "MAC 位址格式不正確。", "err"); return; }
+    setStatus(macStatus, ouiMap ? "查詢中…" : "下載廠商資料庫中（約 3 MB，僅第一次）…");
+    loadOui().then(function(map){
+      var vendor = null, matched = "";
+      [9, 7, 6].forEach(function(len){
+        if (!vendor && hex.length >= len && map[hex.slice(0, len)]) {
+          vendor = map[hex.slice(0, len)]; matched = hex.slice(0, len);
+        }
+      });
+      var firstOctet = parseInt(hex.slice(0, 2), 16);
+      var rows = [
+        ["MAC 位址", hex.replace(/(.{2})(?=.)/g, "$1:")],
+        ["OUI 前綴", matched ? matched.replace(/(.{2})(?=.)/g, "$1:") : hex.slice(0, 6).replace(/(.{2})(?=.)/g, "$1:")],
+        ["製造廠商", vendor || "查無登記資料"]
+      ];
+      if (firstOctet & 2) rows.push(["位址類型", "本地管理位址（可能是手機/電腦的隨機 MAC）"]);
+      else if (firstOctet & 1) rows.push(["位址類型", "群播位址"]);
+      macKv.innerHTML = rows.map(function(r){ return "<dt>" + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd>"; }).join("");
+      macKv.style.display = "";
+      setStatus(macStatus, vendor ? "查詢完成。" : "這個前綴沒有登記廠商，或屬於隨機產生的 MAC。", vendor ? "ok" : "");
+    }).catch(function(){
+      ouiLoading = null;
+      setStatus(macStatus, "廠商資料庫下載失敗，請檢查網路後再試。", "err");
+    });
+  }
+  $("#macBtn", body).addEventListener("click", lookupMac);
+  $("#macInput", body).addEventListener("keydown", function(e){ if (e.key === "Enter") lookupMac(); });
+};
+
+/* ============ 03 網速測試 (Cloudflare) ============ */
+INIT.speed = function(body){
+  body.innerHTML =
+    '<div class="stats">' +
+      '<div class="stat"><span>↓ 下載</span><strong id="spDown">—<small>Mbps</small></strong></div>' +
+      '<div class="stat"><span>↑ 上傳</span><strong id="spUp">—<small>Mbps</small></strong></div>' +
+      '<div class="stat"><span>◎ Ping</span><strong id="spPing">—<small>ms</small></strong></div>' +
+      '<div class="stat"><span>⊘ 丟包率</span><strong id="spLoss">—<small>%</small></strong></div>' +
+    "</div>" +
+    '<p class="note" style="margin:0">抖動 <b id="spJitter">—</b> · 測試節點 <b>Cloudflare Edge</b></p>' +
+    '<div class="progress"><i id="spBar"></i></div>' +
+    '<div class="row" style="margin-top:12px;align-items:center">' +
+      '<button type="button" class="btn" id="spBtn">開始測試</button>' +
+      '<span class="status-line" id="spStatus" style="margin-top:0;flex:1">準備就緒</span>' +
+    "</div>" +
+    '<p class="note">測試約使用 12 MB 流量。丟包率為 10 次 HTTP 探測的失敗比例估算，不等同專用 UDP 丟包診斷；結果會受 Wi-Fi、裝置與當下網路負載影響。</p>';
+
+  var downEl = $("#spDown", body), upEl = $("#spUp", body), pingEl = $("#spPing", body),
+      lossEl = $("#spLoss", body), jitterEl = $("#spJitter", body),
+      bar = $("#spBar", body), status = $("#spStatus", body), btn = $("#spBtn", body);
+  var BASE = "https://speed.cloudflare.com";
+  var running = false;
+  function setStat(el, val, unit){ el.innerHTML = val + "<small>" + unit + "</small>"; }
+  function fmtMbps(v){ return v >= 100 ? Math.round(v).toString() : v.toFixed(1); }
+
+  function probe(){
+    var t0 = performance.now();
+    return fetch(BASE + "/__down?bytes=0&r=" + Math.random(), { cache: "no-store" })
+      .then(function(r){ if (!r.ok) throw new Error(); return r.arrayBuffer(); })
+      .then(function(){ return performance.now() - t0; });
+  }
+  function download(bytes, onProgress){
+    var t0 = performance.now(), loaded = 0;
+    return fetch(BASE + "/__down?bytes=" + bytes + "&r=" + Math.random(), { cache: "no-store" })
+      .then(function(r){
+        if (!r.ok || !r.body) throw new Error("down");
+        var reader = r.body.getReader();
+        function pump(){
+          return reader.read().then(function(res){
+            if (res.done) return;
+            loaded += res.value.byteLength;
+            if (onProgress) onProgress(loaded, performance.now() - t0);
+            return pump();
+          });
+        }
+        return pump();
+      })
+      .then(function(){ return { bytes: bytes, ms: performance.now() - t0 }; });
+  }
+  function upload(bytes){
+    var data = new Uint8Array(bytes);
+    var t0 = performance.now();
+    return fetch(BASE + "/__up?r=" + Math.random(), { method: "POST", body: data, cache: "no-store" })
+      .then(function(r){ if (!r.ok) throw new Error("up"); return { bytes: bytes, ms: performance.now() - t0 }; });
+  }
+
+  function run(){
+    if (running) return;
+    running = true;
+    btn.disabled = true;
+    setStat(downEl, "—", "Mbps"); setStat(upEl, "—", "Mbps");
+    setStat(pingEl, "—", "ms"); setStat(lossEl, "—", "%");
+    jitterEl.textContent = "—";
+    bar.style.width = "2%";
+
+    /* Phase 1: latency probes x10 */
+    setStatus(status, "測量延遲與丟包（10 次探測）…");
+    var times = [], fails = 0, chain = Promise.resolve();
+    for (var i = 0; i < 10; i++) {
+      (function(){
+        chain = chain.then(function(){
+          return probe().then(function(ms){ times.push(ms); })
+            .catch(function(){ fails++; })
+            .then(function(){ bar.style.width = (4 + (times.length + fails) * 1.2) + "%"; });
+        });
+      })();
+    }
+    chain.then(function(){
+      if (times.length) {
+        times.sort(function(a, b){ return a - b; });
+        var median = times[Math.floor(times.length / 2)];
+        setStat(pingEl, Math.round(median).toString(), "ms");
+        var diffs = [];
+        for (var k = 1; k < times.length; k++) diffs.push(Math.abs(times[k] - times[k - 1]));
+        var jit = diffs.length ? diffs.reduce(function(a, b){ return a + b; }, 0) / diffs.length : 0;
+        jitterEl.textContent = jit.toFixed(1) + " ms";
+      }
+      setStat(lossEl, Math.round(fails / 10 * 100).toString(), "%");
+
+      /* Phase 2: download */
+      setStatus(status, "測量下載速度…");
+      return download(1000000).then(function(){
+        bar.style.width = "30%";
+        return download(10000000, function(loaded, ms){
+          if (ms > 200 && loaded > 0) setStat(downEl, fmtMbps(loaded * 8 / (ms / 1000) / 1e6), "Mbps");
+          bar.style.width = (30 + Math.min(38, loaded / 10000000 * 38)) + "%";
+        });
+      }).then(function(res){
+        setStat(downEl, fmtMbps(res.bytes * 8 / (res.ms / 1000) / 1e6), "Mbps");
+        bar.style.width = "70%";
+
+        /* Phase 3: upload */
+        setStatus(status, "測量上傳速度…");
+        return upload(100000).then(function(){
+          return upload(1000000);
+        }).then(function(res2){
+          setStat(upEl, fmtMbps(res2.bytes * 8 / (res2.ms / 1000) / 1e6), "Mbps");
+          bar.style.width = "100%";
+          setStatus(status, "測試完成。", "ok");
+        });
+      });
+    }).catch(function(){
+      setStatus(status, "測試中斷：無法連線到 Cloudflare 測速節點，請稍後再試。", "err");
+    }).then(function(){
+      running = false;
+      btn.disabled = false;
+      btn.textContent = "重新測試";
+    });
+  }
+  btn.addEventListener("click", run);
+};
+</script>
+
+<script>
+"use strict";
+/* ============ 04 DNS 查詢 (Google Public DNS) ============ */
+INIT.dns = function(body){
+  body.innerHTML =
+    '<div class="row">' +
+      '<div class="field" style="flex:1 1 180px"><label for="dnsName">網域名稱</label><input class="input" id="dnsName" type="text" placeholder="例如 example.com" autocomplete="off" spellcheck="false"></div>' +
+      '<button type="button" class="btn" id="dnsBtn" style="align-self:flex-end">查詢</button>' +
+    "</div>" +
+    '<div class="field" style="margin-top:12px"><label>紀錄類型</label><div class="seg" id="dnsTypes"></div></div>' +
+    '<div class="status-line" id="dnsStatus"></div>' +
+    '<div class="recs" id="dnsRecs"></div>' +
+    '<p class="note">資料：Google Public DNS · 隱私模式不傳送用戶子網（ECS）。</p>';
+
+  var TYPES = ["A","AAAA","CNAME","MX","NS","TXT","SOA","CAA"];
+  var TYPE_NUM = { A:1, NS:2, CNAME:5, SOA:6, MX:15, TXT:16, AAAA:28, CAA:257 };
+  var cur = "A";
+  var seg = $("#dnsTypes", body), recs = $("#dnsRecs", body), status = $("#dnsStatus", body);
+  TYPES.forEach(function(t){
+    var b = ce("button", t === cur ? "active" : "", t);
+    b.type = "button";
+    b.addEventListener("click", function(){
+      cur = t;
+      seg.querySelectorAll("button").forEach(function(x){ x.classList.toggle("active", x === b); });
+      if ($("#dnsName", body).value.trim()) query();
+    });
+    seg.appendChild(b);
+  });
+  function query(){
+    var name = $("#dnsName", body).value.trim().replace(/\.$/, "");
+    recs.innerHTML = "";
+    if (!name) { setStatus(status, "請先輸入網域名稱。", "err"); return; }
+    setStatus(status, "查詢中…");
+    fetchJSON("https://dns.google/resolve?name=" + encodeURIComponent(name) + "&type=" + cur + "&do=1")
+      .then(function(j){
+        var dnssec = j.AD ? "DNSSEC 已驗證" : "DNSSEC 未驗證";
+        if (j.Status === 3) { setStatus(status, "結果：" + dnssec + " · 此網域不存在（NXDOMAIN）", "err"); return; }
+        if (j.Status !== 0) { setStatus(status, "結果：" + dnssec + " · 查詢失敗（Status " + j.Status + "）", "err"); return; }
+        var answers = (j.Answer || []).filter(function(a){ return a.type === TYPE_NUM[cur]; });
+        if (!answers.length) {
+          setStatus(status, "結果：" + dnssec);
+          recs.innerHTML = '<div class="rec"><span>沒有找到 ' + cur + " 紀錄</span></div>";
+          return;
+        }
+        setStatus(status, "結果：" + dnssec + " · 共 " + answers.length + " 筆 " + cur + " 紀錄", "ok");
+        recs.innerHTML = answers.map(function(a){
+          return '<div class="rec"><b>' + esc(a.name) + '</b><span class="ttl">TTL ' + a.TTL + '</span><span class="data">' + esc(a.data) + "</span></div>";
+        }).join("");
+      })
+      .catch(function(){ setStatus(status, "查詢失敗，請檢查網路後再試。", "err"); });
+  }
+  $("#dnsBtn", body).addEventListener("click", query);
+  $("#dnsName", body).addEventListener("keydown", function(e){ if (e.key === "Enter") query(); });
+};
+
+/* ============ 05 網域與 SSL (RDAP + crt.sh) ============ */
+INIT.domain = function(body){
+  body.innerHTML =
+    '<div class="row">' +
+      '<div class="field" style="flex:1 1 180px"><label for="domName">網域名稱</label><input class="input" id="domName" type="text" placeholder="例如 example.com" autocomplete="off" spellcheck="false"></div>' +
+      '<button type="button" class="btn" id="domBtn" style="align-self:flex-end">查詢</button>' +
+    "</div>" +
+    '<div class="status-line" id="domStatus"></div>' +
+    '<dl class="kv" id="domKv" style="display:none"></dl>' +
+    '<h3 class="subhead" id="certHead" style="display:none;margin-top:18px">憑證紀錄（憑證透明度）</h3>' +
+    '<div class="recs" id="certRecs"></div>' +
+    '<p class="note">資料：RDAP 與憑證透明度紀錄；不代表目前伺服器實際送出的憑證。</p>';
+
+  var status = $("#domStatus", body), kv = $("#domKv", body),
+      certHead = $("#certHead", body), certRecs = $("#certRecs", body);
+
+  function rdapViaBootstrap(domain){
+    var tld = domain.split(".").pop().toLowerCase();
+    return fetchJSON("https://data.iana.org/rdap/dns.json").then(function(boot){
+      var svc = (boot.services || []).filter(function(s){ return s[0].indexOf(tld) !== -1; })[0];
+      if (!svc) throw new Error("no rdap for tld");
+      return fetchJSON(svc[1][0].replace(/\/?$/, "/") + "domain/" + encodeURIComponent(domain));
+    });
+  }
+  function registrarOf(j){
+    var found = "—";
+    (j.entities || []).forEach(function(e){
+      if ((e.roles || []).indexOf("registrar") !== -1) {
+        var vc = e.vcardArray && e.vcardArray[1] || [];
+        vc.forEach(function(f){ if (f[0] === "fn") found = f[3]; });
+      }
+    });
+    return found;
+  }
+  function fmtDate(s){ return s ? s.slice(0, 10) : "—"; }
+
+  function query(){
+    var domain = $("#domName", body).value.trim().toLowerCase()
+      .replace(/^https?:\/\//, "").replace(/\/.*$/, "").replace(/\.$/, "");
+    kv.style.display = "none"; certHead.style.display = "none"; certRecs.innerHTML = "";
+    if (!domain || domain.indexOf(".") === -1) { setStatus(status, "請輸入完整網域名稱，例如 example.com。", "err"); return; }
+    setStatus(status, "查詢註冊資料與憑證紀錄中…");
+
+    var rdapP = fetchJSON("https://rdap.org/domain/" + encodeURIComponent(domain), 12000)
+      .catch(function(){ return rdapViaBootstrap(domain); });
+    rdapP.then(function(j){
+      var events = {};
+      (j.events || []).forEach(function(e){ events[e.eventAction] = e.eventDate; });
+      var ns = (j.nameservers || []).map(function(n){ return n.ldhName; }).filter(Boolean);
+      var rows = [
+        ["網域", j.ldhName || domain],
+        ["註冊商", registrarOf(j)],
+        ["註冊日期", fmtDate(events.registration)],
+        ["到期日期", fmtDate(events.expiration)],
+        ["狀態", (j.status || []).join("、") || "—"],
+        ["DNSSEC", j.secureDNS && j.secureDNS.delegationSigned ? "已簽署（delegationSigned）" : "未簽署 / 未提供"],
+        ["名稱伺服器", ns.length ? ns.join("、") : "—"]
+      ];
+      kv.innerHTML = rows.map(function(r){ return "<dt>" + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd>"; }).join("");
+      kv.style.display = "";
+      setStatus(status, "註冊資料查詢完成。", "ok");
+    }).catch(function(){
+      setStatus(status, "查不到註冊資料：網域可能尚未註冊，或該註冊局不提供 RDAP。", "err");
+    });
+
+    fetchJSON("https://crt.sh/?q=" + encodeURIComponent(domain) + "&output=json", 25000)
+      .then(function(list){
+        if (!Array.isArray(list) || !list.length) return;
+        var seen = {}, certs = [];
+        list.forEach(function(c){
+          var key = c.common_name + "|" + c.not_before + "|" + c.not_after;
+          if (!seen[key]) { seen[key] = 1; certs.push(c); }
+        });
+        certs.sort(function(a, b){ return (b.not_after || "").localeCompare(a.not_after || ""); });
+        certHead.style.display = "";
+        var now = new Date();
+        certRecs.innerHTML = certs.slice(0, 6).map(function(c){
+          var nb = new Date(c.not_before), na = new Date(c.not_after);
+          var alive = na >= now;
+          var issuer = String(c.issuer_name || "").split(",").filter(function(p){
+            return /^(O|CN)=/.test(p.trim());
+          }).map(function(p){ return p.trim().replace(/^(O|CN)=/, ""); }).join(" ") || c.issuer_name || "—";
+          return '<div class="rec"><b>' + esc(c.common_name || domain) + '</b>' +
+            '<span class="ttl">' + (alive ? "有效" : "已過期") + "</span>" +
+            '<span class="data">簽發：' + esc(issuer) + "<br>效期：" + fmtDate(c.not_before) + " → " + fmtDate(c.not_after) + "</span></div>";
+        }).join("");
+        if (list.length > 6) {
+          certRecs.innerHTML += '<p class="note" style="margin-top:8px">共 ' + certs.length + " 張不重複憑證，僅顯示效期最新的 6 張。</p>";
+        }
+      })
+      .catch(function(){
+        certHead.style.display = "";
+        certRecs.innerHTML = '<div class="rec"><span>憑證透明度服務（crt.sh）暫時無回應，請稍後再試。</span></div>';
+      });
+  }
+  $("#domBtn", body).addEventListener("click", query);
+  $("#domName", body).addEventListener("keydown", function(e){ if (e.key === "Enter") query(); });
+};
+
+/* ============ 06 瀏覽器與裝置 ============ */
+function renderDevice(body){
+  var n = navigator, s = screen, rows = [];
+  function ua(regex){ var m = n.userAgent.match(regex); return m ? m[1] : null; }
+  var browser = ua(/(Edg)\/[\d.]+/) ? "Microsoft Edge"
+    : ua(/(OPR)\//) ? "Opera"
+    : ua(/(Chrome)\/[\d.]+/) ? "Chrome"
+    : ua(/(Firefox)\/[\d.]+/) ? "Firefox"
+    : (/Safari/.test(n.userAgent) && /Version\//.test(n.userAgent)) ? "Safari" : "其他";
+  var os = /Windows NT/.test(n.userAgent) ? "Windows"
+    : /Android/.test(n.userAgent) ? "Android"
+    : /(iPhone|iPad|iPod)/.test(n.userAgent) ? "iOS"
+    : /Mac OS X/.test(n.userAgent) ? "macOS"
+    : /Linux/.test(n.userAgent) ? "Linux" : "其他";
+  rows.push(["瀏覽器", browser]);
+  rows.push(["作業系統", os]);
+  rows.push(["語言", n.language + (n.languages && n.languages.length > 1 ? "（共 " + n.languages.length + " 種偏好）" : "")]);
+  if (n.hardwareConcurrency) rows.push(["CPU 核心數", String(n.hardwareConcurrency)]);
+  if (n.deviceMemory) rows.push(["裝置記憶體", "約 " + n.deviceMemory + " GB"]);
+  rows.push(["螢幕解析度", s.width + " × " + s.height + " px"]);
+  rows.push(["可用區域", s.availWidth + " × " + s.availHeight + " px"]);
+  rows.push(["視窗大小", window.innerWidth + " × " + window.innerHeight + " px"]);
+  rows.push(["裝置像素比", String(window.devicePixelRatio || 1)]);
+  rows.push(["色彩深度", s.colorDepth + " bit"]);
+  rows.push(["觸控支援", ("ontouchstart" in window || n.maxTouchPoints > 0) ? "是（" + n.maxTouchPoints + " 點）" : "否"]);
+  if (n.connection) rows.push(["網路連線", (n.connection.effectiveType || "—") + (n.connection.downlink ? " · 約 " + n.connection.downlink + " Mbps" : "")]);
+  try { rows.push(["時區", Intl.DateTimeFormat().resolvedOptions().timeZone || "—"]); } catch(e){}
+  rows.push(["Cookie", n.cookieEnabled ? "已啟用" : "未啟用"]);
+  rows.push(["連線狀態", n.onLine ? "線上" : "離線"]);
+  body.querySelector(".kv").innerHTML = rows.map(function(r){
+    return "<dt>" + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd>";
+  }).join("");
+  body.querySelector(".mono").textContent = n.userAgent;
+}
+INIT.device = function(body){
+  body.innerHTML =
+    '<dl class="kv" style="margin-top:0"></dl>' +
+    '<div class="field" style="margin-top:14px"><label>User-Agent 原始字串</label><p class="mono" style="margin:0"></p></div>' +
+    '<div class="row" style="margin-top:14px"><button type="button" class="btn-ghost" id="devRefresh">重新讀取</button></div>' +
+    '<p class="note">✓ 僅在本機讀取，不會建立裝置指紋或儲存資料。</p>';
+  renderDevice(body);
+  $("#devRefresh", body).addEventListener("click", function(){ renderDevice(body); showToast("已重新讀取"); });
+};
+
+/* ============ 07 QR Code 產生器 ============ */
+INIT.qrgen = function(body){
+  body.innerHTML =
+    '<div class="seg" id="qrTabs">' +
+      '<button type="button" class="active" data-mode="text">網址 / 文字</button>' +
+      '<button type="button" data-mode="wifi">Wi-Fi</button>' +
+    "</div>" +
+    '<div id="qrTextPane" style="margin-top:12px">' +
+      '<div class="field"><label for="qrText">內容</label><textarea class="input" id="qrText" placeholder="貼上網址或輸入任意文字"></textarea></div>' +
+    "</div>" +
+    '<div id="qrWifiPane" style="margin-top:12px;display:none">' +
+      '<div class="row">' +
+        '<div class="field" style="flex:1 1 150px"><label for="wifiSsid">Wi-Fi 名稱（SSID）</label><input class="input" id="wifiSsid" type="text" autocomplete="off"></div>' +
+        '<div class="field" style="flex:1 1 150px"><label for="wifiPw">Wi-Fi 密碼</label><input class="input" id="wifiPw" type="text" autocomplete="off"></div>' +
+      "</div>" +
+      '<div class="row" style="margin-top:10px;align-items:flex-end">' +
+        '<div class="field" style="flex:1 1 150px"><label for="wifiEnc">加密方式</label><select class="select" id="wifiEnc"><option value="WPA">WPA / WPA2 / WPA3</option><option value="WEP">WEP</option><option value="nopass">無密碼</option></select></div>' +
+        '<label class="check"><input type="checkbox" id="wifiHidden"> 隱藏網路</label>' +
+      "</div>" +
+    "</div>" +
+    '<div class="qr-stage">' +
+      '<div class="qr-box" id="qrBox"><div class="qr-placeholder" id="qrPh">輸入內容後<br>QR Code 會即時產生</div><canvas id="qrCanvas" width="216" height="216" style="display:none"></canvas></div>' +
+      '<button type="button" class="btn-ghost" id="qrDl" disabled>下載 PNG</button>' +
+    "</div>" +
+    '<p class="note">所有內容皆在瀏覽器本機產生，不會上傳 Wi-Fi 密碼。</p>';
+
+  var mode = "text";
+  var canvas = $("#qrCanvas", body), ph = $("#qrPh", body), dl = $("#qrDl", body);
+  function wifiEscape(v){ return String(v).replace(/([\\;,:"'])/g, "\\$1"); }
+  function payload(){
+    if (mode === "text") return $("#qrText", body).value;
+    var ssid = $("#wifiSsid", body).value;
+    if (!ssid) return "";
+    var enc = $("#wifiEnc", body).value;
+    var p = "WIFI:T:" + enc + ";S:" + wifiEscape(ssid) + ";";
+    if (enc !== "nopass") p += "P:" + wifiEscape($("#wifiPw", body).value) + ";";
+    if ($("#wifiHidden", body).checked) p += "H:true;";
+    return p + ";";
+  }
+  var timer = null;
+  function render(){
+    clearTimeout(timer);
+    timer = setTimeout(function(){
+      var text = payload();
+      if (!text || typeof QRCode === "undefined") {
+        canvas.style.display = "none"; ph.style.display = ""; dl.disabled = true;
+        return;
+      }
+      QRCode.toCanvas(canvas, text, { width: 216, margin: 2, errorCorrectionLevel: "M" }, function(err){
+        if (err) { canvas.style.display = "none"; ph.style.display = ""; ph.textContent = "內容太長，無法產生 QR Code"; dl.disabled = true; return; }
+        ph.style.display = "none"; canvas.style.display = ""; dl.disabled = false;
+      });
+    }, 180);
+  }
+  ["qrText","wifiSsid","wifiPw","wifiEnc","wifiHidden"].forEach(function(id){
+    var el = document.getElementById(id);
+    el.addEventListener("input", render);
+    el.addEventListener("change", render);
+  });
+  $("#qrTabs", body).querySelectorAll("button").forEach(function(b){
+    b.addEventListener("click", function(){
+      mode = b.dataset.mode;
+      $("#qrTabs", body).querySelectorAll("button").forEach(function(x){ x.classList.toggle("active", x === b); });
+      $("#qrTextPane", body).style.display = mode === "text" ? "" : "none";
+      $("#qrWifiPane", body).style.display = mode === "wifi" ? "" : "none";
+      render();
+    });
+  });
+  dl.addEventListener("click", function(){
+    var a = ce("a");
+    a.download = "qrcode.png";
+    a.href = canvas.toDataURL("image/png");
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    showToast("已下載 QR Code");
+  });
+};
+
+/* ============ 08 QR Code 掃描 ============ */
+INIT.qrscan = function(body){
+  body.innerHTML =
+    '<div class="row">' +
+      '<button type="button" class="btn" id="scanCamBtn">開啟相機掃描</button>' +
+      '<button type="button" class="btn-ghost" id="scanImgBtn">選擇圖片</button>' +
+      '<input type="file" id="scanFile" accept="image/*" style="display:none">' +
+    "</div>" +
+    '<div id="scanVideoWrap" style="display:none;margin-top:12px"><video class="scan-video" id="scanVideo" playsinline muted></video></div>' +
+    '<div class="scan-result" id="scanResult"></div>' +
+    '<div class="status-line" id="scanStatus">拍照或選擇圖片，支援 JPG、PNG、WebP。</div>' +
+    '<p class="note">✓ 圖片只在這台裝置處理，不會上傳伺服器。</p>';
+
+  var video = $("#scanVideo", body), wrap = $("#scanVideoWrap", body),
+      result = $("#scanResult", body), status = $("#scanStatus", body),
+      camBtn = $("#scanCamBtn", body);
+  var stream = null, rafId = null;
+  var scanCanvas = ce("canvas"), sctx = scanCanvas.getContext("2d", { willReadFrequently: true });
+
+  function showResult(text){
+    result.classList.add("show");
+    var isUrl = /^https?:\/\/\S+$/i.test(text.trim());
+    result.innerHTML = "<b>掃描結果</b><br>" + esc(text) +
+      '<div class="row" style="margin-top:10px">' +
+        '<button type="button" class="btn-ghost" id="scanCopy">複製內容</button>' +
+        (isUrl ? '<a class="btn" href="' + esc(text.trim()) + '" target="_blank" rel="noopener noreferrer" style="text-decoration:none">開啟連結</a>' : "") +
+      "</div>";
+    $("#scanCopy", body).addEventListener("click", function(){ copyText(text, "已複製掃描內容"); });
+    setStatus(status, "掃描成功。", "ok");
+  }
+  function decodeFromCanvas(){
+    if (typeof jsQR === "undefined") { setStatus(status, "掃描元件尚未載入完成，請稍後再試。", "err"); return null; }
+    var img = sctx.getImageData(0, 0, scanCanvas.width, scanCanvas.height);
+    var code = jsQR(img.data, img.width, img.height);
+    return code && code.data ? code.data : null;
+  }
+  function stopScan(){
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = null;
+    if (stream) { stream.getTracks().forEach(function(t){ t.stop(); }); stream = null; }
+    wrap.style.display = "none";
+    camBtn.textContent = "開啟相機掃描";
+  }
+  window.__stopScan = stopScan;
+  function tick(){
+    if (!stream) return;
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+      scanCanvas.width = video.videoWidth;
+      scanCanvas.height = video.videoHeight;
+      sctx.drawImage(video, 0, 0);
+      var data = decodeFromCanvas();
+      if (data) { stopScan(); showResult(data); return; }
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+  camBtn.addEventListener("click", function(){
+    if (stream) { stopScan(); setStatus(status, "相機已關閉。"); return; }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setStatus(status, "這個瀏覽器不支援相機掃描，請改用「選擇圖片」。", "err"); return;
+    }
+    setStatus(status, "正在開啟相機…");
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+      .then(function(s){
+        stream = s;
+        video.srcObject = s;
+        wrap.style.display = "";
+        camBtn.textContent = "關閉相機";
+        return video.play();
+      })
+      .then(function(){ setStatus(status, "將 QR Code 對準畫面即可自動掃描。"); tick(); })
+      .catch(function(){
+        stream = null;
+        setStatus(status, "無法使用相機（可能被拒絕授權或頁面未允許），請改用「選擇圖片」。", "err");
+      });
+  });
+  $("#scanImgBtn", body).addEventListener("click", function(){ $("#scanFile", body).click(); });
+  $("#scanFile", body).addEventListener("change", function(){
+    var file = this.files && this.files[0];
+    this.value = "";
+    if (!file) return;
+    stopScan();
+    var url = URL.createObjectURL(file);
+    var img = new Image();
+    img.onload = function(){
+      var max = 1600, scale = Math.min(1, max / Math.max(img.width, img.height));
+      scanCanvas.width = Math.round(img.width * scale);
+      scanCanvas.height = Math.round(img.height * scale);
+      sctx.drawImage(img, 0, 0, scanCanvas.width, scanCanvas.height);
+      URL.revokeObjectURL(url);
+      var data = decodeFromCanvas();
+      if (data) showResult(data);
+      else setStatus(status, "這張圖片裡找不到 QR Code，換一張試試。", "err");
+    };
+    img.onerror = function(){ URL.revokeObjectURL(url); setStatus(status, "圖片讀取失敗。", "err"); };
+    img.src = url;
+  });
+};
+</script>
+
+<script>
+"use strict";
+/* ============ 09 強密碼產生器 ============ */
+INIT.pw = function(body){
+  body.innerHTML =
+    '<div class="pw-out"><code id="pwText">—</code>' +
+      '<button type="button" id="pwCopy" aria-label="複製密碼"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>' +
+      '<button type="button" id="pwGen" aria-label="重新產生"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button>' +
+    "</div>" +
+    '<div class="field"><label for="pwLen">長度：<span id="pwLenVal">20</span></label><input type="range" id="pwLen" min="8" max="64" value="20"></div>' +
+    '<div class="checks" style="margin-top:6px">' +
+      '<label class="check"><input type="checkbox" id="pwUpper" checked> 大寫 A–Z</label>' +
+      '<label class="check"><input type="checkbox" id="pwLower" checked> 小寫 a–z</label>' +
+      '<label class="check"><input type="checkbox" id="pwDigit" checked> 數字 0–9</label>' +
+      '<label class="check"><input type="checkbox" id="pwSymbol" checked> 符號</label>' +
+    "</div>" +
+    '<div class="field" style="margin-top:14px"><label>強度：<span id="pwStrength">—</span>（<span id="pwBits">0</span> bits）</label><div class="meter"><i id="pwMeter"></i></div></div>' +
+    '<p class="note">使用瀏覽器安全亂數（crypto.getRandomValues）在本機產生，不會傳送或儲存。</p>';
+
+  var SETS = {
+    pwUpper: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    pwLower: "abcdefghijklmnopqrstuvwxyz",
+    pwDigit: "0123456789",
+    pwSymbol: "!@#$%^&*()-_=+[]{};:,.<>?"
+  };
+  var text = $("#pwText", body), meter = $("#pwMeter", body),
+      strengthEl = $("#pwStrength", body), bitsEl = $("#pwBits", body);
+  function randomInt(max){
+    var arr = new Uint32Array(1), limit = Math.floor(4294967296 / max) * max, v;
+    do { crypto.getRandomValues(arr); v = arr[0]; } while (v >= limit);
+    return v % max;
+  }
+  function generate(){
+    var pool = "";
+    Object.keys(SETS).forEach(function(id){ if (document.getElementById(id).checked) pool += SETS[id]; });
+    var len = parseInt($("#pwLen", body).value, 10);
+    $("#pwLenVal", body).textContent = len;
+    if (!pool) {
+      text.textContent = "請至少選擇一種字元";
+      strengthEl.textContent = "—"; bitsEl.textContent = "0"; meter.style.width = "0";
+      return;
+    }
+    var out = "";
+    for (var i = 0; i < len; i++) out += pool.charAt(randomInt(pool.length));
+    text.textContent = out;
+    var bits = Math.round(len * Math.log2(pool.length));
+    bitsEl.textContent = bits;
+    var label, color, pct;
+    if (bits < 45) { label = "弱"; color = "#DC2626"; pct = 25; }
+    else if (bits < 70) { label = "普通"; color = "#B45309"; pct = 50; }
+    else if (bits < 100) { label = "強"; color = "#0F766E"; pct = 75; }
+    else { label = "非常強"; color = "#15803D"; pct = 100; }
+    strengthEl.textContent = label;
+    meter.style.width = pct + "%";
+    meter.style.background = color;
+  }
+  ["pwLen","pwUpper","pwLower","pwDigit","pwSymbol"].forEach(function(id){
+    document.getElementById(id).addEventListener("input", generate);
+    document.getElementById(id).addEventListener("change", generate);
+  });
+  $("#pwGen", body).addEventListener("click", generate);
+  $("#pwCopy", body).addEventListener("click", function(){
+    if (text.textContent && text.textContent !== "—" && text.textContent !== "請至少選擇一種字元") {
+      copyText(text.textContent, "密碼已複製");
+    }
+  });
+  generate();
+};
+
+/* ============ 10 世界時鐘 ============ */
+INIT.clock = function(body){
+  var CITIES = [
+    ["台北", "Asia/Taipei"], ["東京", "Asia/Tokyo"], ["首爾", "Asia/Seoul"],
+    ["新加坡", "Asia/Singapore"], ["倫敦", "Europe/London"], ["巴黎", "Europe/Paris"],
+    ["紐約", "America/New_York"], ["洛杉磯", "America/Los_Angeles"],
+    ["雪梨", "Australia/Sydney"], ["UTC", "UTC"]
+  ];
+  body.innerHTML =
+    '<div class="clocks" id="clockGrid"></div>' +
+    '<hr class="divider">' +
+    '<h3 class="subhead">時區換算</h3>' +
+    '<div class="row">' +
+      '<div class="field" style="flex:1 1 170px"><label for="convTime">日期與時間</label><input class="input" id="convTime" type="datetime-local"></div>' +
+      '<div class="field" style="flex:1 1 120px"><label for="convFrom">所在城市</label><select class="select" id="convFrom">' +
+        CITIES.map(function(c, i){ return '<option value="' + c[1] + '"' + (i === 0 ? " selected" : "") + ">" + c[0] + "</option>"; }).join("") +
+      "</select></div>" +
+    "</div>" +
+    '<div class="conv-list" id="convList"></div>';
+
+  var gridEl = $("#clockGrid", body);
+  gridEl.innerHTML = CITIES.map(function(c, i){
+    return '<div class="clock-tile"><span>' + c[0] + '</span><strong id="clk' + i + '">--:--:--</strong><small id="clkd' + i + '">—</small></div>';
+  }).join("");
+
+  var timeFmt = {}, dateFmt = {};
+  CITIES.forEach(function(c){
+    timeFmt[c[1]] = new Intl.DateTimeFormat("zh-Hant", { timeZone: c[1], hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false });
+    dateFmt[c[1]] = new Intl.DateTimeFormat("zh-Hant", { timeZone: c[1], month: "long", day: "numeric", weekday: "short" });
+  });
+  function tick(){
+    var now = new Date();
+    CITIES.forEach(function(c, i){
+      var tEl = document.getElementById("clk" + i), dEl = document.getElementById("clkd" + i);
+      if (!tEl) return;
+      tEl.textContent = timeFmt[c[1]].format(now);
+      dEl.textContent = dateFmt[c[1]].format(now);
+    });
+  }
+  tick();
+  var timer = setInterval(function(){
+    if (!document.body.contains(gridEl)) { clearInterval(timer); return; }
+    tick();
+  }, 1000);
+
+  /* converter */
+  var convTime = $("#convTime", body), convFrom = $("#convFrom", body), convList = $("#convList", body);
+  function wallParts(zone, date){
+    var parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+    }).formatToParts(date);
+    var o = {};
+    parts.forEach(function(p){ o[p.type] = p.value; });
+    return o;
+  }
+  function zonedToUTC(zone, y, mo, d, h, mi){
+    var guess = Date.UTC(y, mo - 1, d, h, mi, 0);
+    for (var i = 0; i < 2; i++) {
+      var p = wallParts(zone, new Date(guess));
+      var asUTC = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second);
+      guess += Date.UTC(y, mo - 1, d, h, mi, 0) - asUTC;
+    }
+    return new Date(guess);
+  }
+  function convert(){
+    if (!convTime.value) { convList.innerHTML = ""; return; }
+    var m = convTime.value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+    if (!m) return;
+    var instant = zonedToUTC(convFrom.value, +m[1], +m[2], +m[3], +m[4], +m[5]);
+    var fmt = {};
+    convList.innerHTML = CITIES.map(function(c){
+      if (!fmt[c[1]]) fmt[c[1]] = new Intl.DateTimeFormat("zh-Hant", {
+        timeZone: c[1], year: "numeric", month: "long", day: "numeric", weekday: "short",
+        hour: "numeric", minute: "2-digit", hour12: true
+      });
+      return '<div class="conv-row"><b>' + c[0] + "</b><span>" + fmt[c[1]].format(instant) + "</span></div>";
+    }).join("");
+  }
+  var nowLocal = new Date();
+  convTime.value = nowLocal.getFullYear() + "-" + pad2(nowLocal.getMonth() + 1) + "-" + pad2(nowLocal.getDate()) +
+    "T" + pad2(nowLocal.getHours()) + ":" + pad2(nowLocal.getMinutes());
+  convTime.addEventListener("input", convert);
+  convFrom.addEventListener("change", convert);
+  convert();
+};
+
+/* ============ 11 天氣與空氣品質 (Open-Meteo) ============ */
+INIT.wx = function(body){
+  var WMO = {
+    0:"晴天", 1:"大致晴朗", 2:"局部多雲", 3:"多雲", 45:"有霧", 48:"有霧淞",
+    51:"毛毛雨", 53:"毛毛雨", 55:"毛毛雨", 56:"凍毛毛雨", 57:"凍毛毛雨",
+    61:"小雨", 63:"中雨", 65:"大雨", 66:"凍雨", 67:"凍雨",
+    71:"小雪", 73:"中雪", 75:"大雪", 77:"雪粒",
+    80:"陣雨", 81:"陣雨", 82:"暴雨", 85:"陣雪", 86:"陣雪",
+    95:"雷雨", 96:"雷雨伴冰雹", 99:"雷雨伴冰雹"
+  };
+  body.innerHTML =
+    '<div class="row">' +
+      '<div class="field" style="flex:1 1 180px"><label for="wxQuery">搜尋城市</label><input class="input" id="wxQuery" type="text" placeholder="例如 台中、Tokyo、New York" autocomplete="off"></div>' +
+      '<button type="button" class="btn" id="wxBtn" style="align-self:flex-end">搜尋</button>' +
+    "</div>" +
+    '<div id="wxPick"></div>' +
+    '<div class="status-line" id="wxStatus">載入天氣資料中…</div>' +
+    '<div id="wxMain" style="display:none">' +
+      '<div class="wx-main"><div><div class="wx-temp"><span id="wxTemp">—</span>°</div></div>' +
+      '<div><div class="wx-desc" id="wxDesc">—</div><div class="wx-city" id="wxCity">—</div>' +
+      '<div style="margin-top:8px"><span class="aqi-chip" id="wxAqi" style="background:#6B7280">AQI —</span></div></div></div>' +
+      '<dl class="kv" id="wxKv"></dl>' +
+      '<div class="wx-days" id="wxDays"></div>' +
+    "</div>" +
+    '<p class="note">氣象與空氣品質資料：Open-Meteo · 預設位置以 IP 推測（僅城市級），可用上方搜尋切換城市。</p>';
+
+  var status = $("#wxStatus", body), main = $("#wxMain", body), pick = $("#wxPick", body);
+  function aqiInfo(aqi){
+    if (aqi == null) return ["—", "#6B7280"];
+    if (aqi <= 50) return ["良好", "#16A34A"];
+    if (aqi <= 100) return ["普通", "#A16207"];
+    if (aqi <= 150) return ["對敏感族群不健康", "#EA580C"];
+    if (aqi <= 200) return ["不健康", "#DC2626"];
+    if (aqi <= 300) return ["非常不健康", "#9333EA"];
+    return ["危害", "#7F1D1D"];
+  }
+  function uvInfo(uv){
+    if (uv == null) return "—";
+    var lv = uv < 3 ? "低" : uv < 6 ? "中" : uv < 8 ? "高" : uv < 11 ? "非常高" : "極高";
+    return uv.toFixed(1) + "（" + lv + "）";
+  }
+  function load(lat, lon, label){
+    main.style.display = "none";
+    setStatus(status, "載入 " + label + " 的天氣中…");
+    var fUrl = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon +
+      "&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m" +
+      "&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,weather_code&timezone=auto&forecast_days=3";
+    var aUrl = "https://air-quality-api.open-meteo.com/v1/air-quality?latitude=" + lat + "&longitude=" + lon +
+      "&current=pm2_5,pm10,us_aqi&timezone=auto";
+    Promise.all([
+      fetchJSON(fUrl),
+      fetchJSON(aUrl).catch(function(){ return null; })
+    ]).then(function(res){
+      var f = res[0], aq = res[1];
+      var cur = f.current || {}, daily = f.daily || {}, acur = (aq && aq.current) || {};
+      $("#wxTemp", body).textContent = cur.temperature_2m != null ? Math.round(cur.temperature_2m) : "—";
+      $("#wxDesc", body).textContent = WMO[cur.weather_code] || "—";
+      $("#wxCity", body).textContent = label + (f.timezone ? " · " + f.timezone.replace("_", " ") : "");
+      var aqi = acur.us_aqi, info = aqiInfo(aqi);
+      var chip = $("#wxAqi", body);
+      chip.textContent = "AQI " + (aqi != null ? Math.round(aqi) : "—") + (aqi != null ? " · " + info[0] : "");
+      chip.style.background = info[1];
+      var rows = [
+        ["體感溫度", cur.apparent_temperature != null ? cur.apparent_temperature.toFixed(1) + " °C" : "—"],
+        ["相對濕度", cur.relative_humidity_2m != null ? cur.relative_humidity_2m + " %" : "—"],
+        ["風速", cur.wind_speed_10m != null ? cur.wind_speed_10m.toFixed(1) + " km/h" : "—"],
+        ["今日高 / 低溫", (daily.temperature_2m_max || [])[0] != null ? daily.temperature_2m_max[0].toFixed(0) + "° / " + daily.temperature_2m_min[0].toFixed(0) + "°" : "—"],
+        ["今日降雨機率", (daily.precipitation_probability_max || [])[0] != null ? daily.precipitation_probability_max[0] + " %" : "—"],
+        ["紫外線指數", uvInfo((daily.uv_index_max || [])[0])],
+        ["PM2.5", acur.pm2_5 != null ? acur.pm2_5.toFixed(1) + " µg/m³" : "—"],
+        ["PM10", acur.pm10 != null ? acur.pm10.toFixed(1) + " µg/m³" : "—"]
+      ];
+      $("#wxKv", body).innerHTML = rows.map(function(r){ return "<dt>" + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd>"; }).join("");
+      var days = $("#wxDays", body), dayNames = ["今天", "明天", "後天"];
+      days.innerHTML = (daily.time || []).map(function(dstr, i){
+        var d = new Date(dstr + "T00:00:00");
+        var label2 = (dayNames[i] || "") + " " + (d.getMonth() + 1) + "/" + d.getDate();
+        var rain = (daily.precipitation_probability_max || [])[i];
+        return '<div class="wx-day"><b>' + label2 + '</b><span class="d-desc">' + esc(WMO[(f.daily.weather_code || [])[i]] || "") + '</span>' +
+          '<span class="d-rain">' + (rain != null ? "降雨 " + rain + "%" : "") + '</span>' +
+          '<span class="d-temp">' + daily.temperature_2m_min[i].toFixed(0) + "° – " + daily.temperature_2m_max[i].toFixed(0) + "°</span></div>";
+      }).join("");
+      main.style.display = "";
+      setStatus(status, "更新時間：" + (cur.time ? cur.time.replace("T", " ") : "—") + "（當地時間）", "ok");
+    }).catch(function(){
+      setStatus(status, "天氣資料暫時無法取得，請稍後再試。", "err");
+    });
+  }
+  function search(){
+    var q = $("#wxQuery", body).value.trim();
+    pick.innerHTML = "";
+    if (!q) { setStatus(status, "請先輸入城市名稱。", "err"); return; }
+    setStatus(status, "搜尋城市中…");
+    fetchJSON("https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(q) + "&count=6&language=zh&format=json")
+      .then(function(j){
+        var list = j.results || [];
+        if (!list.length) { setStatus(status, "找不到這個城市，換個名稱試試。", "err"); return; }
+        setStatus(status, "選擇要查看的城市：");
+        var box = ce("div", "pick-list");
+        list.forEach(function(r){
+          var label = r.name + (r.admin1 ? " · " + r.admin1 : "") + (r.country ? " · " + r.country : "");
+          var b = ce("button", "", esc(r.name) + "<small>" + esc([r.admin1, r.country].filter(Boolean).join(" · ")) + "</small>");
+          b.type = "button";
+          b.addEventListener("click", function(){
+            pick.innerHTML = "";
+            load(r.latitude, r.longitude, label);
+          });
+          box.appendChild(b);
+        });
+        pick.appendChild(box);
+      })
+      .catch(function(){ setStatus(status, "城市搜尋失敗，請稍後再試。", "err"); });
+  }
+  $("#wxBtn", body).addEventListener("click", search);
+  $("#wxQuery", body).addEventListener("keydown", function(e){ if (e.key === "Enter") search(); });
+
+  /* default: IP-based city, fallback Taipei */
+  fetchJSON("https://ipwho.is/", 8000).then(function(j){
+    if (j && j.latitude && j.longitude) load(j.latitude, j.longitude, j.city ? (j.city + (j.country ? " · " + j.country : "")) : "目前位置");
+    else load(25.033, 121.5654, "台北市 · 台灣");
+  }).catch(function(){ load(25.033, 121.5654, "台北市 · 台灣"); });
+};
+
+applyFilter();
+</script>
+</body>
+</html>
