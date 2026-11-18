@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<title>網速測試 - 網路工具箱</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800;900&family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body>
+<a class="back-link" href="/">← 回工具總覽</a>
+<div class="wrap">
+
+  <header class="tool-head">
+    <span class="icon" style="--c:#C2410C" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 14.5l4.2-5.7"/><path d="M4.6 19.5a9.5 9.5 0 1 1 14.8 0"/><circle cx="12" cy="14.5" r="1.4" fill="currentColor" stroke="none"/></svg></span>
+    <div>
+      <h1>03 網速測試</h1>
+      <p>測量連線速度，測台灣節點並判斷夠不夠用</p>
+    </div>
+  </header>
+
+  <div class="tool-body tool-page-body" id="tool-root"></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">已複製</div>
+
+<script src="/assets/tools.js"></script>
+<script>INIT["speed"](document.getElementById("tool-root"));</script>
+
+<footer style="text-align:center;color:#6B7280;font-size:13px;padding:28px 16px 32px;border-top:1px solid var(--line, #E5E7EB);margin-top:32px">© 2026 HILL 版權所有</footer>
+</body>
+</html>

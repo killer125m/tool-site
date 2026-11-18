@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<title>QR Code 掃描 - 網路工具箱</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;800;900&family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<link rel="stylesheet" href="/assets/style.css" />
+</head>
+<body>
+<a class="back-link" href="/">← 回工具總覽</a>
+<div class="wrap">
+
+  <header class="tool-head">
+    <span class="icon" style="--c:#7C3AED" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M3 12h18"/></svg></span>
+    <div>
+      <h1>08 QR Code 掃描</h1>
+      <p>從相機或圖片讀取 QR Code，判斷連結安全</p>
+    </div>
+  </header>
+
+  <div class="tool-body tool-page-body" id="tool-root"></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">已複製</div>
+
+<script src="/assets/tools.js"></script>
+<script>INIT["qrscan"](document.getElementById("tool-root"));</script>
+
+<footer style="text-align:center;color:#6B7280;font-size:13px;padding:28px 16px 32px;border-top:1px solid var(--line, #E5E7EB);margin-top:32px">© 2026 HILL 版權所有</footer>
+</body>
+</html>
