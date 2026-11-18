@@ -2099,7 +2099,7 @@ INIT.idgen = function(body){
     '<div class="row" style="margin-top:14px"><button type="button" class="btn" id="idgCopyAll">全部複製</button></div>' +
     '<hr class="divider">' +
     '<h3 class="subhead">臨時信箱（只能收信）</h3>' +
-    '<p class="note">用 mail.tm 建立一個臨時信箱收驗證信或通知信，信箱每 10 秒自動檢查一次。<b>臨時信箱只能收信，不能寄信。</b></p>' +
+    '<p class="note">點進來就自動幫你建立一個臨時信箱收驗證信或通知信，信箱每 10 秒自動檢查一次。<b>臨時信箱只能收信，不能寄信。</b></p>' +
     '<div class="row">' +
       '<button type="button" class="btn" id="idgMailCreate">建立臨時信箱</button>' +
       '<button type="button" class="btn-ghost" id="idgMailSwap" disabled>把 Email 換成臨時信箱</button>' +
@@ -2169,39 +2169,62 @@ INIT.idgen = function(body){
         var list = (j && j["hydra:member"]) || j;
         if (!Array.isArray(list) || !list.length) throw new Error("no domains");
         var domain = list[0].domain;
-        var user = (current["使用者名稱"] || "user").replace(/[^a-zA-Z0-9._-]/g, "").toLowerCase() || "user";
-        var address = user + Math.floor(Math.random() * 9000 + 1000) + "@" + domain;
+        var base = (current["使用者名稱"] || "user").replace(/[^a-zA-Z0-9._-]/g, "").toLowerCase() || "user";
         var pw = randomPassword();
-        mailStatus("正在建立信箱 " + address + "…");
-        return fetch("https://api.mail.tm/accounts", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Accept": "application/json" },
-          body: JSON.stringify({ address: address, password: pw })
-        }).then(function(r){ if (!r.ok) throw new Error("create " + r.status); return r.json(); })
-        .then(function(){
-          return fetch("https://api.mail.tm/token", {
+        var attempt = 0;
+        function tryOnce(){
+          attempt++;
+          var address = base + Math.floor(Math.random() * 9000 + 1000) + "@" + domain;
+          mailStatus("正在建立信箱 " + address + "…");
+          return fetch("https://api.mail.tm/accounts", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Accept": "application/json" },
             body: JSON.stringify({ address: address, password: pw })
-          }).then(function(r){ if (!r.ok) throw new Error("token " + r.status); return r.json(); });
-        })
-        .then(function(tok){
-          mail.token = tok.token; mail.address = address;
-          $("#idgMailAddr", body).textContent = address;
-          $("#idgMailBox", body).style.display = "";
-          $("#idgMailSwap", body).disabled = false;
-          btn.textContent = "換一個臨時信箱";
-          mailStatus("臨時信箱已建立，開始收信。", "ok");
-          refreshMessages();
-          if (mail.timer) clearInterval(mail.timer);
-          mail.timer = setInterval(function(){
-            if (!document.body.contains(body)) { clearInterval(mail.timer); mail.timer = null; return; }
-            refreshMessages(true);
-          }, 10000);
-        });
+          }).then(function(r){
+            if (r.ok) return address;
+            return r.text().then(function(t){
+              var msg = "";
+              try { var e = JSON.parse(t); msg = (e.violations && e.violations[0] && e.violations[0].message) || e.detail || ""; } catch (_e) {}
+              var err = new Error("create " + r.status + " " + msg);
+              err.used = /already used/i.test(msg);
+              throw err;
+            });
+          }).then(function(addr){
+            return fetch("https://api.mail.tm/token", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Accept": "application/json" },
+              body: JSON.stringify({ address: addr, password: pw })
+            }).then(function(r){ if (!r.ok) throw new Error("token " + r.status); return r.json().then(function(tok){ return { address: addr, tok: tok }; }); });
+          }).then(function(res){
+            mail.token = res.tok.token; mail.address = res.address;
+            $("#idgMailAddr", body).textContent = res.address;
+            $("#idgMailBox", body).style.display = "";
+            $("#idgMailSwap", body).disabled = false;
+            btn.textContent = "換一個臨時信箱";
+            mailStatus("臨時信箱已建立，開始收信。", "ok");
+            refreshMessages();
+            if (mail.timer) clearInterval(mail.timer);
+            mail.timer = setInterval(function(){
+              if (!document.body.contains(body)) { clearInterval(mail.timer); mail.timer = null; return; }
+              refreshMessages(true);
+            }, 10000);
+          }).catch(function(e){
+            if (e && e.used && attempt < 5) {
+              mailStatus("這個信箱名稱已被使用，換一個再試（第 " + attempt + " 次）…");
+              return tryOnce();
+            }
+            throw e;
+          });
+        }
+        return tryOnce();
       })
-      .catch(function(){
-        mailStatus("臨時信箱建立失敗，請檢查網路後再試。", "err");
+      .catch(function(e){
+        var msg = (e && e.message) || "";
+        if (/no domains/.test(msg)) mailStatus("取得臨時信箱網域失敗，請檢查網路後再試。", "err");
+        else if (/token /.test(msg)) mailStatus("信箱已建立但登入失敗，請按按鈕再試一次。", "err");
+        else if (/create 422/.test(msg)) mailStatus("臨時信箱建立失敗（名稱不合規定），請按按鈕再試一次。", "err");
+        else if (/create /.test(msg)) mailStatus("臨時信箱建立失敗（" + msg.replace(/^create /, "HTTP ") + "），請按按鈕再試一次。", "err");
+        else mailStatus("臨時信箱建立失敗，請檢查網路後再試。", "err");
       })
       .then(function(){ btn.disabled = false; });
   }
@@ -2259,4 +2282,5 @@ INIT.idgen = function(body){
   });
 
   generate();
+  createMailbox(); /* 點進來就自動建立一個臨時信箱，失敗時按鈕可手動再試 */
 };
