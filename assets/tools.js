@@ -99,7 +99,7 @@ TOOLS.forEach(function(t){
   card.innerHTML =
     '<a class="card-head" href="/' + t.id + '/">' +
       '<span class="icon" aria-hidden="true">' + ICONS[t.icon] + "</span>" +
-      '<span class="card-info"><h2>' + t.num + " " + esc(t.name) + "</h2><p>" + esc(t.desc) + '</p><span class="tags" style="display:flex">' + tagsHtml + "</span></span>" +
+      '<span class="card-info"><h2>' + t.num + " " + esc(t.name) + "</h2><p>" + esc(t.desc) + '</p><span class="tags">' + tagsHtml + "</span></span>" +
       '<span class="chev" aria-hidden="true">' + CHEV + "</span>" +
     "</a>";
   grid.appendChild(card);
