@@ -2114,7 +2114,6 @@ INIT.idgen = function(body){
     '<p class="note">臨時信箱由瞬郵 Blink Mail 提供（@inbox.blink-mail.kdns.fr），點進來就自動建立一個，60 分鐘內有效，每 10 秒自動檢查一次。想換一個再按按鈕。<b>臨時信箱只能收信，不能寄信。</b></p>' +
     '<div class="row">' +
       '<button type="button" class="btn" id="idgMailCreate">建立臨時信箱</button>' +
-      '<button type="button" class="btn-ghost" id="idgMailSwap" disabled>把 Email 換成臨時信箱</button>' +
     "</div>" +
     '<div id="idgMailBox" style="display:none;margin-top:12px">' +
       '<dl class="kv"><dt>信箱地址</dt><dd><span id="idgMailAddr">—</span> <button type="button" class="btn-ghost" id="idgMailCopy" style="height:32px;padding:0 12px;font-size:13px">複製</button></dd></dl>' +
@@ -2150,6 +2149,7 @@ INIT.idgen = function(body){
       genRemote(country, function(data){
         if (my !== seq) return;
         current = data;
+        if (mail.address) current["Email"] = mail.address;
         renderFields();
         setStatus($("#idgStatus", body), "已產生一組" + country.name + "的測試資料。", "ok");
       }, function(){
@@ -2158,6 +2158,7 @@ INIT.idgen = function(body){
       });
     } else {
       current = genLocal(code);
+      if (mail.address) current["Email"] = mail.address;
       renderFields();
       setStatus($("#idgStatus", body), "已產生一組" + country.name + "的測試資料。", "ok");
     }
@@ -2205,9 +2206,9 @@ INIT.idgen = function(body){
     mail.id = mb.id; mail.token = mb.token; mail.address = mb.address; mail.expiresAt = mb.expiresAt;
     $("#idgMailAddr", body).textContent = mb.address;
     $("#idgMailBox", body).style.display = "";
-    $("#idgMailSwap", body).disabled = false;
     $("#idgMailCreate", body).textContent = "換一個臨時信箱";
     mailStatus("臨時信箱已建立（60 分鐘內有效），開始收信。", "ok");
+    if (Object.keys(current).length) { current["Email"] = mb.address; renderFields(); }
     refreshMessages();
     if (mail.timer) clearInterval(mail.timer);
     mail.timer = setInterval(function(){
@@ -2311,12 +2312,6 @@ INIT.idgen = function(body){
   $("#idgMailCreate", body).addEventListener("click", function(){ createMailbox(true); });
   $("#idgMailRefresh", body).addEventListener("click", function(){ refreshMessages(false); });
   $("#idgMailCopy", body).addEventListener("click", function(){ if (mail.address) copyText(mail.address, "信箱地址已複製"); });
-  $("#idgMailSwap", body).addEventListener("click", function(){
-    if (!mail.address) return;
-    current["Email"] = mail.address;
-    renderFields();
-    showToast("Email 已換成臨時信箱");
-  });
 
   generate();
   createMailbox(); /* 點進來就自動建立一個臨時信箱，失敗自動重試；按鈕只留給想換一個的人 */
