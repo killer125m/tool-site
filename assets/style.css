@@ -349,3 +349,14 @@
 .tool-page-body{display:block;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);box-shadow:var(--shadow)}
 .card-link .chev{transform:rotate(-90deg)}
 a.card-head{text-decoration:none}
+
+/* eooce 參考站優化：緊湊模式（首頁 12 張卡改 4 欄小卡，只留圖示＋名字） */
+.compact-btn{height:38px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;flex-shrink:0}
+.compact-btn.active{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+body.compact .grid{grid-template-columns:repeat(4,1fr)}
+@media(max-width:680px){body.compact .grid{grid-template-columns:repeat(2,1fr)}}
+body.compact .card-head{flex-direction:column;align-items:center;text-align:center;gap:8px;padding:14px 8px}
+body.compact .card-info p,body.compact .card-info .tags,body.compact .card .chev{display:none}
+body.compact .card-info h2{font-size:13.5px}
+body.compact .icon{width:44px;height:44px}
+body.compact .icon svg{width:22px;height:22px}

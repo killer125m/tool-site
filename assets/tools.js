@@ -147,6 +147,18 @@ document.addEventListener("keydown", function(e){
   }
 });
 }
+var compactBtn = document.getElementById("compactBtn");
+if (compactBtn) {
+  var setCompact = function(on){
+    document.body.classList.toggle("compact", on);
+    compactBtn.classList.toggle("active", on);
+    compactBtn.setAttribute("aria-pressed", on ? "true" : "false");
+    compactBtn.textContent = on ? "詳細" : "緊湊";
+    try { localStorage.setItem("tool-compact", on ? "1" : "0"); } catch(e){}
+  };
+  compactBtn.addEventListener("click", function(){ setCompact(!document.body.classList.contains("compact")); });
+  try { if (localStorage.getItem("tool-compact") === "1") setCompact(true); } catch(e){}
+}
 var INIT = {}, ONOPEN = {};
 
 
